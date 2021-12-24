@@ -1,0 +1,209 @@
+Microsoft Windows [version 10.0.19042.1165]
+(c) Microsoft Corporation. Tous droits réservés.
+
+C:\Users\msi>mongo -host localhost -port 37023
+MongoDB shell version v4.0.3
+connecting to: mongodb://localhost:37023/
+Implicit session: session { "id" : UUID("9e258269-842b-4240-ae57-476583d9d782") }
+MongoDB server version: 4.0.3
+Welcome to the MongoDB shell.
+For interactive help, type "help".
+For more comprehensive documentation, see
+        http://docs.mongodb.org/
+Questions? Try the support group
+        http://groups.google.com/group/mongodb-user
+Server has startup warnings:
+2021-09-25T15:02:12.272+0100 I CONTROL  [main]
+2021-09-25T15:02:12.272+0100 I CONTROL  [main] ** WARNING: Access control is not enabled for the database.
+2021-09-25T15:02:12.272+0100 I CONTROL  [main] **          Read and write access to data and configuration is unrestricted.
+2021-09-25T15:02:12.272+0100 I CONTROL  [main]
+2021-09-25T15:02:12.272+0100 I CONTROL  [main] ** WARNING: This server is bound to localhost.
+2021-09-25T15:02:12.272+0100 I CONTROL  [main] **          Remote systems will be unable to connect to this server.
+2021-09-25T15:02:12.272+0100 I CONTROL  [main] **          Start the server with --bind_ip <address> to specify which IP
+2021-09-25T15:02:12.272+0100 I CONTROL  [main] **          addresses it should serve responses from, or with --bind_ip_all to
+2021-09-25T15:02:12.272+0100 I CONTROL  [main] **          bind to all interfaces. If this behavior is desired, start the
+2021-09-25T15:02:12.272+0100 I CONTROL  [main] **          server with --bind_ip 127.0.0.1 to disable this warning.
+2021-09-25T15:02:12.272+0100 I CONTROL  [main]
+mongos> use test
+switched to db test
+mongos> sh.enableSharding("test")
+{
+        "ok" : 1,
+        "operationTime" : Timestamp(1632578612, 6),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1632578612, 6),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> db.users.ensureIndex( { _id : "hashed" } )
+{
+        "raw" : {
+                "sh2/localhost:47017,localhost:47018,localhost:47019" : {
+                        "createdCollectionAutomatically" : false,
+                        "numIndexesBefore" : 1,
+                        "numIndexesAfter" : 2,
+                        "ok" : 1
+                }
+        },
+        "ok" : 1,
+        "operationTime" : Timestamp(1632578642, 2),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1632578642, 2),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> sh.shardCollection("test.users", { "_id": "hashed" } )
+{
+        "collectionsharded" : "test.users",
+        "collectionUUID" : UUID("6d846a46-e4e4-4960-a9b1-83191d3ec130"),
+        "ok" : 1,
+        "operationTime" : Timestamp(1632578673, 25),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1632578673, 25),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> for (var i = 1;i <=50000;i++) db.users.insert({_id:i,name:"test",country:"Tunisia"})
+WriteResult({ "nInserted" : 1 })
+mongos>
+mongos> sh.status()
+--- Sharding Status ---
+  sharding version: {
+        "_id" : 1,
+        "minCompatibleVersion" : 5,
+        "currentVersion" : 6,
+        "clusterId" : ObjectId("614f2a8d1309a74deab3ffa8")
+  }
+  shards:
+        {  "_id" : "sh1",  "host" : "sh1/localhost:37017,localhost:37018,localhost:37019",  "state" : 1 }
+        {  "_id" : "sh2",  "host" : "sh2/localhost:47017,localhost:47018,localhost:47019",  "state" : 1 }
+  active mongoses:
+        "4.0.3" : 1
+  autosplit:
+        Currently enabled: yes
+  balancer:
+        Currently enabled:  yes
+        Currently running:  no
+        Failed balancer rounds in last 5 attempts:  0
+        Migration Results for the last 24 hours:
+                No recent migrations
+  databases:
+        {  "_id" : "config",  "primary" : "config",  "partitioned" : true }
+                config.system.sessions
+                        shard key: { "_id" : 1 }
+                        unique: false
+                        balancing: true
+                        chunks:
+                                sh1     1
+                        { "_id" : { "$minKey" : 1 } } -->> { "_id" : { "$maxKey" : 1 } } on : sh1 Timestamp(1, 0)
+        {  "_id" : "test",  "primary" : "sh2",  "partitioned" : true,  "version" : {  "uuid" : UUID("919a89d3-75c8-4248-a04b-c869a61f7ca6"),  "lastMod" : 1 } }
+                test.users
+                        shard key: { "_id" : "hashed" }
+                        unique: false
+                        balancing: true
+                        chunks:
+                                sh1     2
+                                sh2     2
+                        { "_id" : { "$minKey" : 1 } } -->> { "_id" : NumberLong("-4611686018427387902") } on : sh1 Timestamp(1, 0)
+                        { "_id" : NumberLong("-4611686018427387902") } -->> { "_id" : NumberLong(0) } on : sh1 Timestamp(1, 1)
+                        { "_id" : NumberLong(0) } -->> { "_id" : NumberLong("4611686018427387902") } on : sh2 Timestamp(1, 2)
+                        { "_id" : NumberLong("4611686018427387902") } -->> { "_id" : { "$maxKey" : 1 } } on : sh2 Timestamp(1, 3)
+
+mongos> db.adminCommand( { removeShard: "sh2" } )
+{
+        "msg" : "draining started successfully",
+        "state" : "started",
+        "shard" : "sh2",
+        "note" : "you need to drop or movePrimary these databases",
+        "dbsToMove" : [
+                "test"
+        ],
+        "ok" : 1,
+        "operationTime" : Timestamp(1632579049, 2),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1632579049, 2),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> use admin
+switched to db admin
+mongos> db.runCommand({listshards:1})
+{
+        "shards" : [
+                {
+                        "_id" : "sh1",
+                        "host" : "sh1/localhost:37017,localhost:37018,localhost:37019",
+                        "state" : 1
+                },
+                {
+                        "_id" : "sh2",
+                        "host" : "sh2/localhost:47017,localhost:47018,localhost:47019",
+                        "draining" : true,
+                        "state" : 1
+                }
+        ],
+        "ok" : 1,
+        "operationTime" : Timestamp(1632579094, 1),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1632579094, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> printShardingStatus()
+--- Sharding Status ---
+  sharding version: {
+        "_id" : 1,
+        "minCompatibleVersion" : 5,
+        "currentVersion" : 6,
+        "clusterId" : ObjectId("614f2a8d1309a74deab3ffa8")
+  }
+  shards:
+        {  "_id" : "sh1",  "host" : "sh1/localhost:37017,localhost:37018,localhost:37019",  "state" : 1 }
+        {  "_id" : "sh2",  "host" : "sh2/localhost:47017,localhost:47018,localhost:47019",  "state" : 1,  "draining" : true }
+  active mongoses:
+        "4.0.3" : 1
+  autosplit:
+        Currently enabled: yes
+  balancer:
+        Currently enabled:  yes
+        Currently running:  no
+        Failed balancer rounds in last 5 attempts:  0
+        Migration Results for the last 24 hours:
+                2 : Success
+  databases:
+        {  "_id" : "config",  "primary" : "config",  "partitioned" : true }
+                config.system.sessions
+                        shard key: { "_id" : 1 }
+                        unique: false
+                        balancing: true
+                        chunks:
+                                sh1     1
+                        { "_id" : { "$minKey" : 1 } } -->> { "_id" : { "$maxKey" : 1 } } on : sh1 Timestamp(1, 0)
+        {  "_id" : "test",  "primary" : "sh2",  "partitioned" : true,  "version" : {  "uuid" : UUID("919a89d3-75c8-4248-a04b-c869a61f7ca6"),  "lastMod" : 1 } }
+                test.users
+                        shard key: { "_id" : "hashed" }
+                        unique: false
+                        balancing: true
+                        chunks:
+                                sh1     4
+                        { "_id" : { "$minKey" : 1 } } -->> { "_id" : NumberLong("-4611686018427387902") } on : sh1 Timestamp(1, 0)
+                        { "_id" : NumberLong("-4611686018427387902") } -->> { "_id" : NumberLong(0) } on : sh1 Timestamp(1, 1)
+                        { "_id" : NumberLong(0) } -->> { "_id" : NumberLong("4611686018427387902") } on : sh1 Timestamp(2, 0)
+                        { "_id" : NumberLong("4611686018427387902") } -->> { "_id" : { "$maxKey" : 1 } } on : sh1 Timestamp(3, 0)
+
+mongos>
