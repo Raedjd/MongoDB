@@ -1,8 +1,0 @@
-{_id: 1,title: 'Programmation avec Node.js, Express.js et MongoDB', description: 'JavaScript cote serveur',
-    author: 'Eric Sarrion',date_pub :ISODate("2010-12-19T00:00:00Z") ,tags: ['mongodb', 'database', 'NoSQL'],likes: 100}
-{_id: 2,title: 'jQuery Mobile', description: 'La bibliothèque JavaScript pour le web mobile',
-    author:'Eric Sarrion',date_pub : ISODate("2010-06-04T00:00:00Z"), tags: ['jQuery', 'mobile'],likes: 10}
-{_id: 3,title: 'Learning Neo4j', description: 'Neo4j, the World’s Leading Graph Database',
-     author: 'Rik Van Bruggen',date_pub  : ISODate("2010-02-24T00:00:00Z"), tags: ['neo4j', 'database', 'NoSQL'],likes: 750}
-{_id: 4,title: 'Les Blockchains', description: 'De la théorie à la pratique, de l’idée à l’implémentation',
-     author: ' Fréderic Goujon',date_pub  : ISODate("2017-01-16T00:00:00Z"), tags: ['blockchain', 'bitcoin', 'cryptographie'],likes: 380}
