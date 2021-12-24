@@ -1,0 +1,52 @@
+*****************************************************************
+			test sharding
+******************************************************************
+-- Permettre le sharding sur une BD
+mongo –host localhost –port 37023
+mongos> use test 
+mongos> sh.enableSharding("test")
+-- Donner la clé de sharding de la collection users
+mongos> db.users.ensureIndex( { _id : "hashed" } )
+mongos> sh.shardCollection("test.users", { "_id": "hashed" } )
+mongos> for (var i = 1;i <=50000;i++) db.users.insert({_id:i,name:"test",country:"Tunisia"})
+mongos> sh.status()
+******************************************************************
+			remove shards
+******************************************************************
+mongos> db.adminCommand( { removeShard: "sh2" } )
+mongos> use admin
+mongos> db.runCommand({listshards:1})    ----afficher la liste des shard
+mongos> printShardingStatus()    ---Afficher toutes les informations sur le sharding
+******************************************************************
+				Replication
+******************************************************************
+mongo --port 37017
+shard0:PRIMARY> cfg = rs.conf()
+cfg.members[1].priority = 2   (en donnant au membre 1 une priorite sup a celle du master, il sera elu automatiquement en tant que master)
+rs.reconfig(cfg) // appliquer les changement
+
+mongo --port 37018
+-- temps de synchronisation entre les noeuds
+shard0:PRIMARY> rs.printSlaveReplicationInfo() // a partir du master
+**************************************************************
+				Test synchronisation 
+**************************************************************
+--insertion document dans primary 
+shard0:PRIMARY> use mabd
+shard0:PRIMARY> db.tab.insert({name:"alain",age:26,hobby:"database"})
+shard0:PRIMARY> db.tab.count()
+
+-- connection au replicat secondaire 
+mongo --port 37017
+shard0:SECONDARY> db.getMongo().setSlaveOk()  --synchronisation avec le master     (rs.slaveOk();)
+shard0:SECONDARY> show dbs -- verification existence de la base mabd
+**************************************************************
+		Test de tolérance aux pannes
+**************************************************************
+mongo --port 37018
+shard0:PRIMARY> use admin
+shard0:PRIMARY> db.shutdownServer()
+mongo --port 37019
+shard0:PRIMARY> rs.status()
+
+
