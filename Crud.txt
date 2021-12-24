@@ -1,0 +1,33 @@
+mongoimport -d students -c notes C:\Users\msi\Desktop\Mongo\notes.json // Import data from notes.json file into NOTES collection of database
+STUDENTS
+use students 
+
+//For Dispaly
+show collections //Display the number of documents in the NOTES collection
+db.notes.find().count() //Dispaly the number of scores assigned for exams
+db.notes.find({score:{"$lte":50}}) //Display the list of students whose score is less than 50 in quizzes
+db.notes.find({},{id:true ,score:true }).sort({score:1}) //Display the id and scores of student homeworks, ordered by score
+
+//For insert
+db.notes.insert({student-id:"200","type":"Exam","score":"39.13"})
+db.notes.insert({student-id:"200","type":"Quiz","score":"40.13"})
+db.notes.insert({student-id:"200","type":"homeworks","score":"17.13"})
+db.notes.insert({student-id:"200","type":"homeworks","score":"84.13"})
+
+//For update
+db.notes.update({student_id:"200", type:"Exam"},{$set: {score:"59"}},{multi:true}) //Update student exam score 200 to 59
+db.notes.update({student_id:"200"},{$set: {score:"44"}},{multi:true}) //Student number 200 had the same score for all tests, namely 44
+db.notes.update({student_id:"200"},{$inc: {student_id:"2"}}) //Increment by 2 the student ID number 200
+
+//For remove
+db.notes.remove({student_id:202}) //Delete student number 202
+
+******************************************************************************************************************************
+
+mongoimport -d students -c images C:\Users\msi\Desktop\Mongo\images.json //Import data from images.json file into IMAGES collection of database
+STUDENTS
+
+db.images.insert({_id:10000 , height:480 , width:120 , tags:[ "cats", "dogs", "kittens"]}) //insert
+db.images.update({_id:9} , {$push:{"tags":"vacation"}}) //Add to the image whose id is 9 the tag "vacation"
+db.images.update({_id:7} , {$set:{"tags.1":"cats"}}) //Change the first tag of image number 7 to "cats"
+db.images.update({_id:99977} , {$pull:{"tags":"work"}}) //Remove the 'work' tag from image number 99977
