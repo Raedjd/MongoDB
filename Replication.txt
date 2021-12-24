@@ -1,0 +1,155 @@
+Microsoft Windows [version 10.0.19042.1165]
+(c) Microsoft Corporation. Tous droits réservés.
+
+C:\Users\msi>mongo --port 37017
+MongoDB shell version v4.0.3
+connecting to: mongodb://127.0.0.1:37017/
+Implicit session: session { "id" : UUID("c6411e15-63ce-4d82-b743-ee56f80fc073") }
+MongoDB server version: 4.0.3
+Server has startup warnings:
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten]
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten]
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten] ** WARNING: This server is bound to localhost.
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten] **          Remote systems will be unable to connect to this server.
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten] **          Start the server with --bind_ip <address> to specify which IP
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten] **          addresses it should serve responses from, or with --bind_ip_all to
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten] **          bind to all interfaces. If this behavior is desired, start the
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten] **          server with --bind_ip 127.0.0.1 to disable this warning.
+2021-09-25T15:01:23.828+0100 I CONTROL  [initandlisten]
+---
+Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+
+The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+and anyone you share the URL with. MongoDB may use this information to make product
+improvements and to suggest MongoDB products and deployment options to you.
+
+To enable free monitoring, run the following command: db.enableFreeMonitoring()
+To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+---
+
+sh1:PRIMARY> cfg = rs.conf()
+{
+        "_id" : "sh1",
+        "version" : 1,
+        "protocolVersion" : NumberLong(1),
+        "writeConcernMajorityJournalDefault" : true,
+        "members" : [
+                {
+                        "_id" : 0,
+                        "host" : "localhost:37017",
+                        "arbiterOnly" : false,
+                        "buildIndexes" : true,
+                        "hidden" : false,
+                        "priority" : 1,
+                        "tags" : {
+
+                        },
+                        "slaveDelay" : NumberLong(0),
+                        "votes" : 1
+                },
+                {
+                        "_id" : 1,
+                        "host" : "localhost:37018",
+                        "arbiterOnly" : false,
+                        "buildIndexes" : true,
+                        "hidden" : false,
+                        "priority" : 1,
+                        "tags" : {
+
+                        },
+                        "slaveDelay" : NumberLong(0),
+                        "votes" : 1
+                },
+                {
+                        "_id" : 2,
+                        "host" : "localhost:37019",
+                        "arbiterOnly" : false,
+                        "buildIndexes" : true,
+                        "hidden" : false,
+                        "priority" : 1,
+                        "tags" : {
+
+                        },
+                        "slaveDelay" : NumberLong(0),
+                        "votes" : 1
+                }
+        ],
+        "settings" : {
+                "chainingAllowed" : true,
+                "heartbeatIntervalMillis" : 2000,
+                "heartbeatTimeoutSecs" : 10,
+                "electionTimeoutMillis" : 10000,
+                "catchUpTimeoutMillis" : -1,
+                "catchUpTakeoverDelayMillis" : 30000,
+                "getLastErrorModes" : {
+
+                },
+                "getLastErrorDefaults" : {
+                        "w" : 1,
+                        "wtimeout" : 0
+                },
+                "replicaSetId" : ObjectId("614f2a779da0a7dcc80fbad1")
+        }
+}
+sh1:PRIMARY> cfg.members[0].priority = 2
+2
+sh1:PRIMARY> rs.reconfig(cfg)
+{
+        "ok" : 1,
+        "operationTime" : Timestamp(1632580080, 1),
+        "$gleStats" : {
+                "lastOpTime" : {
+                        "ts" : Timestamp(1632580080, 1),
+                        "t" : NumberLong(2)
+                },
+                "electionId" : ObjectId("7fffffff0000000000000002")
+        },
+        "lastCommittedOpTime" : Timestamp(1632580075, 1),
+        "$configServerState" : {
+                "opTime" : {
+                        "ts" : Timestamp(1632580065, 1),
+                        "t" : NumberLong(2)
+                }
+        },
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1632580080, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+sh1:PRIMARY> cfg.members[1].priority = 2
+2
+sh1:PRIMARY> rs.reconfig(cfg)
+{
+        "ok" : 1,
+        "operationTime" : Timestamp(1632580112, 1),
+        "$gleStats" : {
+                "lastOpTime" : {
+                        "ts" : Timestamp(1632580112, 1),
+                        "t" : NumberLong(2)
+                },
+                "electionId" : ObjectId("7fffffff0000000000000002")
+        },
+        "lastCommittedOpTime" : Timestamp(1632580105, 1),
+        "$configServerState" : {
+                "opTime" : {
+                        "ts" : Timestamp(1632580096, 1),
+                        "t" : NumberLong(2)
+                }
+        },
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1632580112, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+sh1:PRIMARY> mongo --port 37018
+2021-09-25T15:29:14.310+0100 E QUERY    [js] SyntaxError: missing ; before statement @(shell):1:8
+sh1:PRIMARY>
