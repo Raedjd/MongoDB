@@ -1,0 +1,6 @@
+mongoimport -d cities -c zips C:\Users\msi\Desktop\Mongo\zips.json // Import data from nzips.json file into NOTES collection of database
+AGREGATION
+db.cities.agreagate([{$group:{_id:"$city" , cities:{$sum:1}}}]) //Display the number of cities per state
+db.cities.agreagate([{$project{_id:0 ,city:{$toLower:"$city"} , length:{$strLenBytes:"$city"} }}]) //Display for each city, the size of the name, as well as the name in lowercase.
+db.cities.agreagate([{$match:{"city":/^AD/} } , {$group:{-id:{} , sum:{$sum:"$pop"}}}]) //Display the total population of cities whose name begins with "AD"
+db.cities.agreagate([{$group:{_id:"$state" , max:{$max:"$pop}}}]) //Display the maximum population value per state
