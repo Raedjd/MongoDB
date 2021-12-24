@@ -1,0 +1,99 @@
+
+              #Structure de données – document
+
+▪ Données avec un schéma flexible
+
+▪ Stockées sur le disque sous forme de documents BSON
+
+✔ Documents BSON (Binary JSON) : représentationbinaire sérialisées d’un document JSON
+
+✔ Supporte plus de types de données que JSON (documents, tableaux, tableaux de documents,...) 
+
+▪ Taille max d’un document : 16 Mo
+
+✔ Utilisation de l’API GridFS pour stocker des documents plus larges que la taille autorisée
+
+✔ GridFS permet de diviser les documents en chunks de même taille, et les stocke sous forme de documents séparés
+
+▪ Les documents sont organisés en collections
+
+              #Terminologie
+
+    Table------------------------------->collection  
+    Ligne------------------------------->document
+    Colone------------------------------->champ
+    Index------------------------------->index 
+    Jointure------------------------------->imbrication 
+    Clé étrangé------------------------------->réference
+    Clé primaire------------------------------->clé primaire( représenté par _id)  
+
+             #Modélisation
+
+▪ Ne pas oubliez d’en tenir compte
+
+▪ Besoin de l’ensemble des données à chaque requête
+  --> Une seule collection
+
+▪ Besoin d’avoir seulement une partie de données
+  --> Plusieurs collections et des références
+
+▪ Exemple : les posts d’un blog et leurs commentaires
+✔ 2 besoins : affichage liste des posts + affichage post
+avec commentaires
+✔ Modélisation avec 2 collections (posts, comments)         
+
+            #Sharding – principe
+
+▪ Pour faire de la scalabilité (ou extensibilité) horizontale avecMongoDB on utilise le sharding (ou partitionnement)
+
+▪ Méthode proposée par MongoDB qui permet de distribuer les données sur plusieurs machines
+
+▪ Créer un cluster MongoDB (sharded cluster) composé de plusieurs machines (nœuds) sur les quelles les données vontêtre réparties.
+
+▪ La répartition peut être effectuée de façon arbitraire ou biens elon un sharding_key (ou clé de partitionnement)
+
+▪ On définit comme clé un champ présent dans tous lesdocuments.   
+
+            #Sharding – Architecture d’un cluster
+
+▪ Un sharded cluster estcomposé de 3 principaux:
+
+      ▪ Serveur de configuration:
+
+                     ▪ Stocke les métadonnées et les paramètres de configuration du cluster
+                     ▪ Est en charge de la localisation des données, il sait quelles données se trouvent sur quels shards 
+                     ▪ Agit comme un équilibreur de charge (load balancer)
+
+      ▪ Shards (ou nœuds):
+
+                     ▪ Contient un sous ensemble de données
+                     ▪ S’il est saturé, il suffit d’ajouter d’autres shards => scalabilité horizontale
+
+      ▪ Routeur(mongos): 
+
+                     ▪ Une instance mongos permet derouter les requêtes vers le shard approprié
+                     ▪ Elle agit comme routeur
+                     ▪ Elle joue le rôle d’interface entre l’application cliente et le sharded
+                       cluster : le routeur communique avec le serveur de configuration pour connaître la répartition des
+                       données et donc choisir le bon shard.  
+
+              #Sharding – Atouts d’un cluster                
+
+       ▪ Load balancing (répartition de charge)
+
+       ▪ Temps de réponse plus rapides (requêtes parallélisées sur de plus petits jeux de données)
+
+       ▪ Ajout de serveurs supplémentaires sans interruption du service       
+
+               #Replica set – Principe
+
+        ▪ Un sharded cluster se doit d’être hautement disponible
+                --> MongoDB propose un mécanisme de réplication, Le réplica set, pour se prémunir 
+                   contre la perte partielle de données et assurer la continuité du service
+
+        ▪ Un réplica set est un groupe d’instances qui maintiennent le même ensemble de données.
+
+        ▪ Il se compose d’un nœud primaire (master) et de nœuds secondaires (slaves)
+        
+        ▪ Les opérations ont lieu sur le nœud primaire, puis elles sont reproduites sur les
+          nœuds secondaires.       
