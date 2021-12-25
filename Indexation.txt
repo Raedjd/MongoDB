@@ -1,0 +1,36 @@
+mongoimport --db students2 --collection students --type json --file "c:\students.json"
+
+db.students.find({student_id : 50}).pretty()
+db.students.find({student_id : 50}).pretty().explain("executionStats")
+db.students.createIndex({"student_id" : 1},{name:"ind1"})
+db.students.getIndexes()
+db.students.find({student_id : 50}).pretty().explain("executionStats")
+db.students.createIndex({"student_id" : 1},{name:"ind1"})
+db.students.find({student_id : 50}).pretty().explain("executionStats")
+db.students.createIndex({"student_id" : 1,"type":1, "score":1},{name:"ind2"})
+db.students.find({student_id : 50}).pretty().explain("executionStats")
+db.students.dropIndex("ind1")
+db.students.createIndex({"student_id" : 1},{unique: true})
+db.scores.insert({ "_id" : ObjectId("523b6e32fb408eea0eec2647"), "userid" : "newbie" });
+db.scores.insert({ "_id" : ObjectId("523b6e61fb408eea0eec2648"), "userid" : "abby", "score" : 82 });
+db.scores.insert({ "_id" : ObjectId("523b6e6ffb408eea0eec2649"), "userid" : "nina", "score" : 90 });
+db.scores.createIndex({ score: 1 } , { sparse: true } )
+db.scores.find().sort({ score: -1 }).explain("executionStats")
+
+db.scores.find().sort({ score: -1 } ).hint( { score: 1 } ).explain("executionStats")
+db.scores.dropIndex("score_1")
+db.scores.dropIndex("score_1")
+db.scores.find({ userid: "nina",score:{$gt: 85}}).explain("executionStats")
+db.scores.find({ userid: "nina",score:{$lt: 85}}).explain("executionStats")
+
+use city
+db.cities.createIndex({loc:"2d",type:1})
+db.cities.find({loc:{$near:[50,50]}}).limit(3).pretty()
+
+db.livres.createIndex( { description: "text" } )
+db.livres.find({$text:{$search:"serveur"}}).pretty()
+db.livres.find({$text:{$search:"Serveur"}}).pretty()
+db.livres.find({$text:{$search:"Serveur",$caseSensitive: true}}) .pretty()
+db.livres.find({$text:{$search:"Javascript cote"}}, {score:{ $meta:"textScore"}})
+db.livres.find({$text:{$search:"Javascript cote"}}, {score:{
+$meta:"textScore"}}).sort({score:{$meta:"textScore"}}).pretty()
