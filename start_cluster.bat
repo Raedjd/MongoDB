@@ -8,7 +8,7 @@ md c:\data\sh1\rep1 c:\data\sh2\rep1
 md c:\data\sh1\rep2 c:\data\sh2\rep2 
 md c:\data\sh1\rep3 c:\data\sh2\rep3 
 md c:\data\cfg1 c:\data\cfg2 c:\data\cfg3
- 
+  
 REM --------------------------------------------------------------------------------------
 echo Démarrer 3 mongod pour le replicatSet sh1
 REM --------------------------------------------------------------------------------------
