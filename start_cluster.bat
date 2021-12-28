@@ -1,7 +1,7 @@
 REM	--------------------------------------------------------------------------------------
 REM Mise en place d'un cluster mongodb
 REM	--------------------------------------------------------------------------------------
-@echo off 
+@echo off  
 echo creation des répertoires
 md c:\data\sh2 c:\data\sh1 
 md c:\data\sh1\rep1 c:\data\sh2\rep1 
