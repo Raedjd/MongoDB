@@ -1,0 +1,151 @@
+﻿demarrer service neo4j :
+cd C:\neo4j-community-3.4.10\bin
+neo4j console
+Dans un navigateur, ouvrir http://localhost:7474/
+***************************************************
+		requete insert/update/delete
+***************************************************
+-- Ajouter deux noeuds :
+CREATE (noeud1),(noeud2)
+
+-- creer un noeud avec un label (label : type du noeud)
+CREATE (ali:person) 
+
+-- creer un noeud avec deux label
+CREATE (ali:person:client) 
+
+-- creer un noeud avec des proprietes
+CREATE (ali:person{name:"Ali",age:23}) 
+
+-- creer et afficher le noeud 
+CREATE (Mariem:person{name:"Mariem",age:20}) 
+return Mariem
+
+-- ajouter une relation entre deux noeuds existants  
+MATCH (a:person), (b:person) 
+   WHERE a.name = "Ali" AND b.name = "Mariem" 
+CREATE (a)-[:IS_FRIEND_OF]->(b) 
+RETURN a,b       
+     
+--creer deux noeuds avec une relation qui a des attributs et un label
+CREATE (john:person {name:"john"})-[r:IS_FRIEND_OF{duree:5}]->(emil:person {name:"emil"})
+Return john,emil 
+
+-- supprimer les noeuds de label person
+MATCH (a:Person) DELETE a  
+
+--- ajouter une propriete a un noeud
+MATCH (Ali:person{name:"Ali",age:23}) 
+SET Ali.mail = "ali@gmail.com" 
+RETURN Ali
+
+------ supprimer une propriete
+MATCH (Ali:person{name:"Ali",age:23,mail:"ali@gmail.com"}) 
+SET Ali.mail = null
+RETURN Ali
+
+------- ajouter un label a un noeud
+CREATE (kfc {name: "kfc"})
+
+MATCH (kfc {name: "kfc"}) 
+SET kfc: restaurant 
+RETURN kfc 
+
+------ supprimer les personnes et les restaurants et leurs relations
+MATCH (a:person),(b:restaurant) OPTIONAL MATCH (a)-[r1]-(), (b)-[r2]-() DELETE a,r1,b,r2 
+
+----- supprimer tous les noeuds et les relations
+MATCH (n) DETACH DELETE n
+
+----- supprimer une propriete ou un label
+MATCH (Ali:person {name: "Ali", age:23}) 
+REMOVE Ali.age 
+RETURN Ali 
+
+----- creer la base suivante :
+
+CREATE (ali:person {name:"ali"})-[:IS_FRIEND_OF]->(mariem:person {name:"mariem"}),
+ (ali)-[:IS_FRIEND_OF]->(salah:person{name:"salah"}),
+ (ali)-[:IS_FRIEND_OF]->(imen:person {name:"imen"})
+CREATE (burger:Cuisine {name:"burger"}), (lac:adresse {name:"lac"}),(menzah:adresse {name:"menzah"}),
+ (kfc:restaurant{name:"kfc"})-[:SERVES]->(burger),
+ (kfc)-[:LOCATED_IN]->(lac),
+ (salah)-[:LIKES]->(kfc),
+ (imen)-[:LIKES]->(kfc),
+ (zinc:restaurant {name:"zinc"})-[:SERVES]->(burger),
+ (zinc)-[:LOCATED_IN]->(menzah),
+ (ali)-[:LIKES]->(zinc)
+
+ *****************************************************
+			REQUETE DE LECTURE
+ *****************************************************
+ -- afficher tous les noeuds de la base:
+MATCH (n) RETURN n 
+
+-- afficher tous les noeuds de label person
+MATCH (n:person) 
+RETURN n 
+
+-- afficher tous les noeuds qui sont connectés par la relation LIKES
+MATCH (a)-[:LIKES]->(n) 
+RETURN n,a
+
+-- afficher tous les personnes qui aiment kfc
+MATCH (kfc:restaurant{name:"kfc"})<-[:LIKES]-(n) 
+RETURN n.name
+
+-- afficher les restaurants qui existent au lac et leurs cuisines
+MATCH (lac:adresse{name:"lac"})<-[:LOCATED_IN]-(restaurant)-[:SERVES]->(cuisine)
+RETURN lac, restaurant, cuisine
+
+(la fonction optional match retourne null si pas de resultats)
+---- afficher les restaurants que ali aime
+MATCH (ali:person{name:"ali"}) 
+OPTIONAL MATCH (ali)-[:LIKES]->(x) 
+RETURN x
+
+---- afficher les restaurants que mariem aime
+MATCH (mariem:person{name:"mariem"}) 
+OPTIONAL MATCH (mariem)-[:LIKES]->(x) 
+RETURN x
+
+--- afficher les personnes qui aiment le meme retaurant que imen 
+MATCH (imen:person {name:"imen"})-[:LIKES]->(r)<-[:LIKES]-(friends) RETURN r,friends.name 
+
+--- afficher le type de relation entre les personnes et le restaurant kfc
+MATCH (people:person)-[r]-(:restaurant {name: "kfc"}) RETURN people.name, Type(r)
+
+---- afficher les personnes dans l'ordre
+MATCH (n:person)  
+RETURN n.name 
+ORDER BY n.name
+
+--- ordre desc
+MATCH (n:person) 
+RETURN n 
+ORDER BY n.name DESC
+
+---- limit ... skip
+MATCH (n)  
+RETURN n.name
+ORDER BY n.name DESC 
+SKIP 1 limit 2
+
+
+------------------- recherche avec condition
+---- afficher les noeuds dont le libelle est ali et la propriete name=ali
+MATCH (person) WHERE person.name = "ali" RETURN person
+
+---- condition sur la relation afficher les noeuds dont l'ami est ali
+MATCH (n) 
+WHERE (n)<-[:IS_FRIEND_OF]-( {name:"ali"}) 
+RETURN n
+
+--------------------- count
+-- afficher le nombre de relation de ali
+Match(n{name: "ali"})--(x)  
+RETURN n, count(*)
+
+---------------------- Fonction chaine de caractere
+---- afficher en majuscule  (upper, lower)
+MATCH (n:person) RETURN UPPER(n.name), SUBSTRING(n.name,0,3)
